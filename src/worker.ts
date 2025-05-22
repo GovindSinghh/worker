@@ -90,13 +90,14 @@ amqp.connect(`amqp://${rabbitMQHost}`, function(error0:any, connection:any) {
 
             promise.then(async (data)=>{
               console.log("Video uploaded to s3 at location :",data.Location);
-              const presignedUrl=await generatePresignedUrl(bucketName,newVideoName);
-              console.log("Presigned url :",presignedUrl);
-              // Store URL in database
-              await storeVideoUrl(scriptId, presignedUrl);
             }).catch((error)=>{
-              console.log("Error uploading the file to s3 : ",error);
+              console.log("Error uploading the video file to s3 : ",error);
             });
+
+            const presignedUrl=await generatePresignedUrl(bucketName,newVideoName);
+            console.log("Presigned url :",presignedUrl);
+            // Store URL in database
+            await storeVideoUrl(scriptId, presignedUrl);
             
             const cleanupDirPath = path.join(process.cwd(), 'media');
             if (fs.existsSync(cleanupDirPath)) {
@@ -112,7 +113,7 @@ amqp.connect(`amqp://${rabbitMQHost}`, function(error0:any, connection:any) {
           channel.ack(msg);
         });
       } catch (error) {
-        console.error(`Error processing script: ${error}`);
+        console.error(`Error processing script or uploading video: ${error}`);
         channel.ack(msg);
       }
     }, {
