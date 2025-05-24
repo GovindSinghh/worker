@@ -5,7 +5,7 @@ import * as path from 'path';
 import { exec } from 'child_process';
 import * as os from 'os';
 import { generatePresignedUrl, uploadStream } from './s3upload';
-import { Pool, Client } from "pg";
+import { Pool } from "pg";
 
 const bucketName = process.env['BUCKET_NAME'];
 const rabbitMQHost = process.env['RABBITMQ_HOST'] || 'localhost';
@@ -32,7 +32,7 @@ async function storeVideoUrl(scriptId: string, videoUrl: string) {
     throw error;
   }
 }
-
+// Add rabbitMQ connection after deploying
 amqp.connect(`amqp://${rabbitMQHost}`, function(error0:any, connection:any) {
   if (error0) {
     throw error0;
