@@ -89,7 +89,7 @@ amqp.connect(`amqp://${rabbitMQHost}`, function(error0:any, connection:any) {
             fs.createReadStream(path.join(mediaDir,newVideoName)).pipe(writeStream);
 
             promise.then(async (data)=>{
-              console.log("Video uploaded to s3 at location :",data.Location);
+              console.log("Video uploaded to s3")
             }).catch((error)=>{
               console.log("Error uploading the video file to s3 : ",error);
             });
