@@ -1,32 +1,28 @@
 import { PassThrough } from 'stream';
-import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import * as fs from 'fs';
+
 const s3Client = new S3Client({
-    region: 'ap-south-1'
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
+    }
 });
 
-export const uploadStream = (bucketName:string, s3Key:string) => {
+export const uploadStream = (bucketName:string, s3Key:string, filePath: string) => {
     const pass = new PassThrough();
+    const fileSize = fs.statSync(filePath).size;
+    
     const command = new PutObjectCommand({
         Bucket: bucketName,
         Key: s3Key,
         Body: pass,
-        ContentType: 'video/mp4'
+        ContentType: 'video/mp4',
+        ContentLength: fileSize
     });
     return {
         writeStream: pass,
         promise: s3Client.send(command)
     };
 };
-
-export async function generatePresignedUrl(
-    bucketName: string,
-    objectKey: string,
-    ): Promise<string> {
-        const command = new GetObjectCommand({
-            Bucket: bucketName,
-            Key: objectKey,// filename
-        });
-    const signedUrl = await getSignedUrl(s3Client, command);
-    return signedUrl;
-}
